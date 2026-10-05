@@ -2,7 +2,16 @@ import type { Emotion, EmotionEntry, GardenSnapshot, GrowthStage, Plant } from '
 import { EMOTION_META, EMOTIONS } from './models';
 
 const day = 86400000;
-export function stageFor(streak: number): GrowthStage { if (streak >= 14) return '结果'; if (streak >= 7) return '开花'; if (streak >= 3) return '发芽'; return '种子'; }
+const STAGE_GATES: { stage: GrowthStage; threshold: number }[] = [
+  { stage: '结果', threshold: 14 },
+  { stage: '开花', threshold: 7 },
+  { stage: '发芽', threshold: 3 },
+];
+export function stageFor(streak: number): GrowthStage { return STAGE_GATES.find((gate) => streak >= gate.threshold)?.stage ?? '种子'; }
+export function daysToNextStage(streak: number): number | null {
+  const next = [...STAGE_GATES].reverse().find((gate) => streak < gate.threshold);
+  return next ? Math.max(0, next.threshold - streak) : null;
+}
 export function streakFor(entries: EmotionEntry[], emotion: Emotion): number {
   const dates = new Set(entries.filter((item) => item.emotion === emotion).map((item) => item.date));
   let streak = 0; const cursor = new Date(); cursor.setHours(0, 0, 0, 0);
