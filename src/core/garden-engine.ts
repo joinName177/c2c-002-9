@@ -3,6 +3,11 @@ import { EMOTION_META, EMOTIONS } from './models';
 
 const day = 86400000;
 export function stageFor(streak: number): GrowthStage { if (streak >= 14) return '结果'; if (streak >= 7) return '开花'; if (streak >= 3) return '发芽'; return '种子'; }
+const NEXT_STAGE_THRESHOLD: Record<GrowthStage, number | null> = { 种子: 3, 发芽: 7, 开花: 14, 结果: null };
+export function daysToNextStage(plant: Plant): number | null {
+  const threshold = NEXT_STAGE_THRESHOLD[plant.stage];
+  return threshold === null ? null : Math.max(0, threshold - plant.streak);
+}
 export function streakFor(entries: EmotionEntry[], emotion: Emotion): number {
   const dates = new Set(entries.filter((item) => item.emotion === emotion).map((item) => item.date));
   let streak = 0; const cursor = new Date(); cursor.setHours(0, 0, 0, 0);
